@@ -38,6 +38,11 @@
             padding-top: 0;
         }
 
+        .overlay-container {
+            transform: scale(1.5);
+            transform-origin: top left;
+        }
+
         .phone-container {
             width: 393px;
             display: flex;
@@ -92,19 +97,21 @@
 </head>
 
 <body>
-    <div class="phone-container">
-        <div class="time-container">
-            <div id="time"></div>
-        </div>
+    <div class="overlay-container">
+        <div class="phone-container">
+            <div class="time-container">
+                <div id="time"></div>
+            </div>
 
-        <div class="status-bar">
-            <div class="black-bar"></div>
-        </div>
+            <div class="status-bar">
+                <div class="black-bar"></div>
+            </div>
 
-        <div class="internet-container">
-            <img src="cellularIconResized.png" alt="Cellular Icon">
-            <img src="resizedWifi.png" alt="WiFi Icon">
-            <img id="batteryImg" src="iphoneBatter.png" alt="Battery Icon">
+            <div class="internet-container">
+                <img src="cellularIconResized.png" alt="Cellular Icon">
+                <img src="resizedWifi.png" alt="WiFi Icon">
+                <img id="batteryImg" src="iphoneBatter.png" alt="Battery Icon">
+            </div>
         </div>
     </div>
 
