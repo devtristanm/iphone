@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iPhone Status Bar Overlay</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <style>
+        @font-face {
+            font-family: 'SF Pro Display';
+            src: url('https://font.download/font/sf-pro-display') format('woff2'),
+                url('https://font.download/font/sf-pro-display') format('woff');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+            background: #583bff;
+            /* Chroma key green */
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding-top: 0;
+        }
+
+        .phone-container {
+            width: 393px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: 6px;
+        }
+
+        .time-container {
+            align-items: center;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .status-bar {
+            justify-content: center;
+            display: flex;
+            margin-left: 40px;
+            margin-right: 15px;
+        }
+
+        .black-bar {
+            background-color: black;
+            width: 90px;
+            height: 25px;
+            border-radius: 90px;
+        }
+
+        .internet-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            height: 10px;
+        }
+
+        .internet-container img {
+            height: 100%;
+            object-fit: contain;
+        }
+
+        #batteryImg {
+            height: 48px;
+            transform: translateY(-2px) translateX(-14px);
+        }
+
+        #time {
+            color: white;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="phone-container">
+        <div class="time-container">
+            <div id="time"></div>
+        </div>
+
+        <div class="status-bar">
+            <div class="black-bar"></div>
+        </div>
+
+        <div class="internet-container">
+            <img src="cellularIconResized.png" alt="Cellular Icon">
+            <img src="resizedWifi.png" alt="WiFi Icon">
+            <img id="batteryImg" src="iphoneBatter.png" alt="Battery Icon">
+        </div>
+    </div>
+
+
+    <script>
+        // Time update function
+        function updateTime() {
+            const now = new Date();
+            let timeString = now.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+
+            // Remove AM/PM from the end
+            timeString = timeString.replace(/ (AM|PM)/, '');
+
+            document.getElementById('time').textContent = timeString;
+        }
+
+        // Start updating time every second
+        updateTime(); // Initial call
+        setInterval(updateTime, 1000);
+
+        // Battery controls
+        const batterySlider = document.getElementById('battery-slider');
+        const batteryValue = document.getElementById('battery-value');
+        const batteryFill = document.getElementById('battery-fill');
+        const chargingToggle = document.getElementById('charging-toggle');
+
+        function updateBattery() {
+            const level = batterySlider.value;
+            const isCharging = chargingToggle.checked;
+
+            batteryValue.textContent = level;
+            batteryFill.style.width = (level * 22 / 100) + 'px'; // 22px is max width
+
+            if (isCharging) {
+                batteryFill.classList.add('charging');
+            } else {
+                batteryFill.classList.remove('charging');
+            }
+        }
+
+        batterySlider.addEventListener('input', updateBattery);
+        chargingToggle.addEventListener('change', updateBattery);
+
+        // Mute icon toggle
+        const muteToggle = document.getElementById('mute-toggle');
+        const muteIcon = document.getElementById('mute-icon');
+
+        muteToggle.addEventListener('change', function () {
+            muteIcon.style.display = this.checked ? 'flex' : 'none';
+        });
+
+        // Carrier selection
+        const carrierSelect = document.getElementById('carrier-select');
+        const carrierDisplay = document.getElementById('carrier');
+
+        carrierSelect.addEventListener('change', function () {
+            carrierDisplay.textContent = this.value;
+        });
+
+        // Controls visibility
+        let controlsVisible = false;
+
+        function toggleControls() {
+            const controls = document.getElementById('controls');
+            controlsVisible = !controlsVisible;
+
+            if (controlsVisible) {
+                controls.classList.remove('hidden');
+            } else {
+                controls.classList.add('hidden');
+            }
+        }
+
+        // Streaming mode
+        const streamingMode = document.getElementById('streaming-mode');
+
+        streamingMode.addEventListener('change', function () {
+            if (this.checked) {
+                document.body.classList.add('streaming-mode');
+            } else {
+                document.body.classList.remove('streaming-mode');
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function (e) {
+            if (e.key.toLowerCase() === 'c') {
+                toggleControls();
+            }
+            if (e.key.toLowerCase() === 's') {
+                streamingMode.checked = !streamingMode.checked;
+                streamingMode.dispatchEvent(new Event('change'));
+            }
+            if (e.code === 'Space') {
+                e.preventDefault();
+                chargingToggle.checked = !chargingToggle.checked;
+                updateBattery();
+            }
+            if (e.key.toLowerCase() === 'm') {
+                muteToggle.checked = !muteToggle.checked;
+                muteToggle.dispatchEvent(new Event('change'));
+            }
+        });
+
+        // Initialize
+        updateBattery();
+        muteIcon.style.display = 'none'; // Hide mute icon by default
+    </script>
+</body>
+
+</html>
